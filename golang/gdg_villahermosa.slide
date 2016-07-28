@@ -82,7 +82,15 @@ http://www.nearsoft.com
 - Worldwide users
 
 * Go , the chosen one
-.image image/points_web.png _ 900
+.image image/gopher.png _ 900
+
+* Why Go?
+- Compact, concise, general-purpose
+- Imperative, statically type-checked, dynamically type-safe
+- Garbage-collected
+- Compiles to native code, statically linked
+- Fast compilation, efficient execution
+Designed by programmers for programmers!
 
 
 
