@@ -92,5 +92,301 @@ http://www.nearsoft.com
 - Fast compilation, efficient execution
 Designed by programmers for programmers!
 
+* Program elements
+
+* A few words on syntax
+
+_Syntax_doesn't_matter_unless_you_are_a_programmer._
+-- Rob Pike
+
+Corollary:
+
+_Compactness_of_syntax_doesn't_matter_unless_you_are_reading_programs._
+
+Compact is not the same as terse. Readability is crucial.
 
 
+*Packages
+Every Go program is made up of packages.
+
+Programs start running in package main.
+
+This program is using the packages with import paths "fmt" and "math/rand".
+
+.play taste/package.go
+
+
+
+* Exported names
+In Go, a name is exported if it begins with a capital letter. For example, Pizza is an exported name, as is Pi, which is exported from the math package.
+
+.play taste/exported-names.go
+
+* Constants
+
+Constants are declared like variables, but with the const keyword.
+
+Constants can be character, string, boolean, or numeric values.
+
+Constants cannot be declared using the := syntax.
+
+.play taste/constants.go
+
+
+* Variables
+
+- Statically typed:
+	var x int
+	var s, t string
+- Implicitly or explicitly initialized:
+	var x int
+	var s, t string = "foo", "bar"  // multiple assignment
+
+	var x = 42                      // int
+	var s, b = "foo", true          // string, bool
+- Short variable declaration (inside functions only):
+	x := 42
+	s, b := "foo", true
+- Can safely take address of _any_ variable!
+	return &x
+# compiler will do the right thing
+
+* Variables example
+.play taste/variables.go
+
+
+* Structs
+A struct is a collection of fields.
+
+(And a type declaration does what you'd expect.)
+
+.play taste/structs.go
+
+* Defer
+
+A defer statement defers the execution of a function until the surrounding function returns.
+
+The deferred call's arguments are evaluated immediately, but the function call is not executed until the surrounding function returns.
+
+.play taste/defer.go
+
+
+* Arrays
+
+Arrays
+The type [n]T is an array of n values of type T. The expression:
+
+    var a [10]int
+
+declares a variable a as an array of ten integers.
+
+.play taste/array.go
+
+
+* Slices
+An array has a fixed size. A slice, on the other hand, is a dynamically-sized, flexible view into the elements of an array. In practice, slices are much more common than arrays.
+
+The type []T is a slice with elements of type T.
+
+This expression creates a slice of the first five elements of the array a:
+
+    a[0:5]
+
+.play taste/slice.go
+
+
+* Range
+The range form of the for loop iterates over a slice or map.
+
+When ranging over a slice, two values are returned for each iteration. The first is the index, and the second is a copy of the element at that index.
+
+.play taste/range.go
+
+
+* Maps
+A map maps keys to values.
+
+The zero value of a map is nil. A nil map has no keys, nor can keys be added.
+
+The make function returns a map of the given type, initialized and ready for use.
+
+.play taste/maps.go
+
+
+* Functions
+
+- Regular functions
+	func Sin(x float64) float64
+	func AddScale(x, y int, f float64) int
+
+- Multiple return values
+	func Write(data []byte) (written int, err error)
+
+- Variadic parameter lists without magic
+	func Printf(format string, args ...interface{})
+
+- Functions are first-class values
+	var delta int
+	inc func(x int) int { return x + delta }
+
+*  Multiple return values Example
+.play taste/multiple-values.go
+
+
+
+* Function values: An example
+
+	// walkStdLib calls f with the filename of each .go
+	// file in the std library until f return false.
+	func walkStdLib(f func(filename string) bool)
+
+Calling walkStdLib with a closure:
+
+.code taste/walk.go /example START/,/example END/
+
+More directly:
+
+.play taste/walk.go /main START/,/main END/
+
+
+* Methods
+
+Methods are functions with a _receiver_ parameter:
+
+.code taste/point.go /String START/,/String END/
+
+The receiver binds the method to its _base_type_ (Point):
+
+.code taste/point.go /Point START/,/Point END/
+
+Methods are invoked via the usual dot notation:
+
+.play taste/point.go /main START/,/main END/
+
+
+* Methods can be defined for any user-defined type!
+
+For the Weekday type:
+
+.code taste/weekday.go /type START/,/type END/
+
+Define String method on Weekday:
+
+.code taste/weekday.go /String START/,/String END/
+
+.play taste/weekday.go /main START/,/main END/
+
+Method calls via non-interface types are statically dispatched.
+
+* Interface types
+
+- Abstract
+- Define (possibly empty) set of method signatures
+- Values of _any_type_ that implement all methods of an interface can be assigned to a variable of that interface.
+
+Examples:
+
+	interface{}  // empty interface
+
+	interface {
+		String() string
+	}
+
+	interface {
+		Len() int
+		Swap(i, j int)
+		Less(i, j int) bool
+	}
+
+
+* Using interfaces
+
+.code taste/stringer.go /Stringer START/,/Stringer END/
+
+Both Weekday and Point define a String method, so values of both can be assigned to
+a variable of Stringer type:
+
+.play taste/stringer.go /main START/,/main END/
+
+Method calls via interface types are dynamically dispatched ("virtual function call").
+
+
+* Concurrency
+
+* Goroutines
+
+- The _go_ statement launches a function call as a goroutine
+	go f()
+	go f(x, y, ...)
+
+- A goroutine runs concurrently (but not necessarily in parallel)
+- A goroutine has its own stack
+
+
+* A simple example
+
+.code taste/concurrency1.go /f START/,/f END/
+
+Function f is launched as 3 different goroutines, all running concurrently:
+
+.play taste/concurrency1.go /main START/,/main END/
+
+
+* Communication via channels
+
+A channel type specifies a channel value type (and possibly a communication direction):
+
+	chan int
+	chan<- string  // send-only channel
+	<-chan T       // receive-only channel
+
+A channel is a variable of channel type:
+
+	var ch chan int
+	ch := make(chan int)  // declare and initialize with newly made channel
+
+A channel permits _sending_ and _receiving_ values:
+
+	ch <- 1   // send value 1 on channel ch
+	x = <-ch  // receive a value from channel ch (and assign to x)
+
+Channel operations synchronize the communicating goroutines.
+
+* Communicating goroutines
+
+Each goroutine sends its results via channel ch:
+
+.code taste/concurrency2.go /f START/,/f END/
+
+The main goroutine receives (and prints) all results from the same channel:
+
+.play taste/concurrency2.go /main START/,/main END/
+
+
+* There's a lot more!
+
+- Extensive standard library
+
+.link http://golang.org/pkg/
+
+- Powerful tools
+
+.link http://play.golang.org/p/Au02fFpYdf
+# playground, gofmt
+
+- Multi-platform support
+
+.link http://build.golang.org/
+
+- Great documentation
+
+.link http://tour.golang.org/#1
+
+* Lessons Learned
+
+- A fast, simple and powerful stack matters, a lot
+- You can learn anything if you surround by the best
+- Don't be afraid of failure
+
+* Q&A
+.image image/nearsoft-academy.png _ 450
