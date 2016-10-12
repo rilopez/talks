@@ -103,15 +103,11 @@ Corollary:
 
 _Compactness_of_syntax_doesn't_matter_unless_you_are_reading_programs._
 
-Compact is not the same as terse. Readability is crucial.
-
 
 *Packages
 Every Go program is made up of packages.
 
 Programs start running in package main.
-
-This program is using the packages with import paths "fmt" and "math/rand".
 
 .play taste/package.go
 
